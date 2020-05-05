@@ -8,7 +8,7 @@ from common.gfxutil import *
 class StoryWidget(BaseWidget):
     def __init__(self):   
         super(StoryWidget, self).__init__()
-        self.base_src = '../data/img/chapter_one'
+        self.base_src = '../data/img/test_chapter'
         self.red_img = self.base_src + '/red.png'
         self.green_img = self.base_src + '/green.png'
         self.displayed_src = self.green_img

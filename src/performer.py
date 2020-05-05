@@ -278,15 +278,15 @@ class NoteDisplay(InstructionGroup):
         # note image setup
         img_num = self.note % 11
         self.duration = '4'
-        self.source = '../data/img/notes/' + str(img_num) + '_' + self.duration + '.png'
-        self.note_size = (clef_size[0]/4, clef_size[1]/3)
+        self.source = '../data/img/notes/' + str(0) + '_' + self.duration + '.png'
+        self.note_size = (clef_size[0]/3, clef_size[1]/2)
         x = time_to_xpos(self.time)
         y, sign, adjust = note_to_ypos(self.note, self.clef)
 
         small_adjust = .23
-        med_low_adjust = .5
-        med_high_adjust = .9
-        big_adjust = 1.2
+        med_low_adjust = 0.35
+        med_high_adjust = .8
+        big_adjust = 1.0
 
         adjust_used = None
         if adjust == 1:
@@ -298,7 +298,8 @@ class NoteDisplay(InstructionGroup):
         else:
             adjust_used = big_adjust
 
-        # print(note, adjust_used)
+
+        print(note, adjust)
 
         self.y_adjust_factor = -sign * self.note_size[1] * adjust_used
         y += self.y_adjust_factor
@@ -483,7 +484,7 @@ class MusicPartDisplay(InstructionGroup):
         self.source = "../data/img/notation/" + self.clef + ".png"
         self.size = (Window.width/7, Window.height/4) #!!!
         self.line_width = 3
-        self.line_spacing = 2.5 / 16
+        self.line_spacing = 3 / 16
 
         global clef_size
         global line_spacing

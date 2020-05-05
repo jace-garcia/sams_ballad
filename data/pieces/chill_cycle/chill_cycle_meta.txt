@@ -1,0 +1,5 @@
+CLEFS
+treble
+bass
+KEY
+flat,4
