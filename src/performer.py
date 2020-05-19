@@ -637,7 +637,8 @@ class GameDisplay(InstructionGroup):
             self.add(n)
 
         # drawing now bar
-        self.squares = [NowBarSquare(n, hues[n]) for n in range(108 - 21)]
+
+        self.squares = [NowBarSquare(n, hues[n]) for n in range(12, 108 - 21)]
         for s in self.squares:
             self.add(s)
 
