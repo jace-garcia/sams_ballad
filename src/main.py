@@ -5,6 +5,7 @@
 import sys
 sys.path.append('..')
 from common.core import *
+from kivy.config import Config
 from kivy.uix.boxlayout import BoxLayout
 from performer import PerformerWidget
 from story import StoryWidget
@@ -13,12 +14,15 @@ from story import StoryWidget
 class MainWidget(BaseWidget):
     def __init__(self):
         super(MainWidget, self).__init__()
-        self.layout = BoxLayout(orientation='horizontal')
+        # self.layout = BoxLayout(orientation='vertical')
         self.story_widget = StoryWidget()
         self.performer_widget = PerformerWidget(self.end_story_cb, self.continue_story_cb)
-        self.layout.add_widget(self.story_widget)
-        self.layout.add_widget(self.performer_widget)
-        self.add_widget(self.layout)
+        # self.layout.add_widget(self.story_widget)
+        # self.layout.add_widget(self.performer_widget)
+        # self.add_widget(self.layout)
+
+        self.add_widget(self.story_widget)
+        self.add_widget(self.performer_widget)
 
         self.continue_story = True
         self.ended_story = False
@@ -45,4 +49,4 @@ class MainWidget(BaseWidget):
 
 
 if __name__ == "__main__":
-    run(MainWidget)
+    run(MainWidget, fullscreen="True")

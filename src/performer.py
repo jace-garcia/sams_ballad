@@ -21,7 +21,7 @@ import rtmidi
 
 # global params
 nowbar_w_pct = 0.33 # TODO: change so that it adjusts to split screen well
-time_span = 3.0
+time_span = 10.0
 lane_w_pct = 0.0125
 square_h_pct = 0.01
 slop_window = 0.1 # 100ms in either direction
@@ -38,14 +38,12 @@ treble_anchor_note = ('A', 69, None)
 clef_size = None
 line_spacing = None
 
-x_reference = Window.width/2
+barline_scalar = 4 / 12
+bottom_barline_scalar = .1
 
 class PerformerWidget(BaseWidget):
     def __init__(self, end_callback, continue_callback):
         super(PerformerWidget, self).__init__()
-
-        self.translate = Translate(Window.width/2, 0)
-        self.canvas.add(self.translate)
 
         self.end_callback = end_callback # true end should also end music play and probably do other stuff like display 'You Lost'
         self.continue_callback = continue_callback
@@ -94,7 +92,6 @@ class PerformerWidget(BaseWidget):
     # handle changing displayed elements when window size changes
     def on_layout(self, win_size):
         w, h = win_size
-        self.translate.x = w/2
 
         self.display.on_layout(win_size)
     
@@ -299,7 +296,7 @@ class NoteDisplay(InstructionGroup):
             adjust_used = big_adjust
 
 
-        print(note, adjust)
+        # print(note, adjust)
 
         self.y_adjust_factor = -sign * self.note_size[1] * adjust_used
         y += self.y_adjust_factor
@@ -375,8 +372,9 @@ class BarlineDisplay(InstructionGroup):
         w, h = Window.size
 
         x = time_to_xpos(self.time - now_time)
-        y1 = lane_to_ypos(-1)
-        y2 = lane_to_ypos(108 - 21 + 1)
+        y = lane_to_ypos(108 - 21 + 1) * barline_scalar
+        y1 = y * bottom_barline_scalar
+        y2 = y
 
         self.line.points = [x, y1, x, y2]
         self.line.width = .5
@@ -408,7 +406,7 @@ class NowBarSquare(InstructionGroup):
     def on_layout(self, win_size):
         w, h = win_size
 
-        y = lane_to_ypos(self.lane)
+        y = lane_to_ypos(self.lane) * barline_scalar
         x = time_to_xpos(0)        
         sz = h * square_h_pct
 
@@ -482,9 +480,10 @@ class MusicPartDisplay(InstructionGroup):
         self.clef = clef
         self.key = key
         self.source = "../data/img/notation/" + self.clef + ".png"
-        self.size = (Window.width/7, Window.height/4) #!!!
-        self.line_width = 3
-        self.line_spacing = 3 / 16
+        self.split_screen_pct = .7
+        self.size = (Window.width/7 * self.split_screen_pct, Window.height/4 * self.split_screen_pct) #!!!
+        self.line_width = 3 * self.split_screen_pct
+        self.line_spacing = (3 / 16) * self.split_screen_pct
 
         global clef_size
         global line_spacing
@@ -507,7 +506,7 @@ class MusicPartDisplay(InstructionGroup):
         self.add(self.key_display)
 
     def treble_setup(self):
-        treble_x, treble_y = Window.width/1000, Window.height * 9/14
+        treble_x, treble_y = Window.width/1000, Window.height * 3/14
         size = self.size
         staff_lines = self.draw_treble_staff_lines((treble_x, treble_y), size)
         self.clef_display = Rectangle(source=self.source, pos = (treble_x, treble_y), size = size)
@@ -521,7 +520,7 @@ class MusicPartDisplay(InstructionGroup):
         g_points = [g_x, g_y, Window.width, g_y]
 
         # points for staff line below g exactly
-        below_g_y = clef_pos[1] + clef_size[1] * 4.5 / 16
+        below_g_y = g_y - clef_size[1] * self.line_spacing
         below_g_points = [g_x, below_g_y, Window.width, below_g_y]
 
         # points for staff lines above g
@@ -547,7 +546,7 @@ class MusicPartDisplay(InstructionGroup):
 
 
     def bass_setup(self):
-        bass_x, bass_y = Window.width/1000, Window.height * 3/14
+        bass_x, bass_y = Window.width/1000, Window.height * 1/14
         size = self.size
         staff_lines = self.draw_bass_staff_lines((bass_x, bass_y), size)
         self.clef_display = Rectangle(source=self.source, pos = (bass_x, bass_y), size = size)
@@ -562,7 +561,7 @@ class MusicPartDisplay(InstructionGroup):
         f_points = [f_x, f_y, Window.width, f_y]
 
         # points for staff line above f exactly
-        above_f_y = f_y + clef_size[1] * 2.5/ 16
+        above_f_y = f_y + clef_size[1] * self.line_spacing
         above_f_points = [f_x, above_f_y, Window.width, above_f_y]
 
         # points for staff lines below f

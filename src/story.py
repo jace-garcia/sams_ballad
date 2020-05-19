@@ -4,6 +4,10 @@ import sys
 sys.path.append('..')
 from common.core import *
 from common.gfxutil import *
+from kivy.graphics import Translate
+
+# for y pos relative to window
+Y_SCALAR = 5/12
 
 class StoryWidget(BaseWidget):
     def __init__(self):   
@@ -12,26 +16,31 @@ class StoryWidget(BaseWidget):
         self.red_img = self.base_src + '/red.png'
         self.green_img = self.base_src + '/green.png'
         self.displayed_src = self.green_img
-        self.displayed_img = Rectangle(source=self.displayed_src, pos = (0, 0), size = (Window.width/2, Window.height))
+        self.size = (Window.width/3, Window.height/2)
+        self.pos = (Window.width/4, Window.height * Y_SCALAR)
+
+        self.displayed_img = Rectangle(source=self.displayed_src, pos = self.pos, size = self.size)
         
         self.canvas.add(self.displayed_img)
 
     def continue_story(self):
         self.canvas.clear()
         self.displayed_src = self.green_img
-        self.displayed_img = Rectangle(source=self.displayed_src, pos = (0, 0), size = (Window.width/2, Window.height))
+        self.displayed_img = Rectangle(source=self.displayed_src, pos = self.pos, size = self.size)
         self.canvas.add(self.displayed_img)
 
     def end_story(self):
         self.canvas.clear()
         self.displayed_src = self.red_img
-        self.displayed_img = Rectangle(source=self.displayed_src, pos = (0, 0), size = (Window.width/2, Window.height))
+        self.displayed_img = Rectangle(source=self.displayed_src, pos = self.pos, size = self.size)
         self.canvas.add(self.displayed_img)
 
     def on_layout(self, win_size):
         w, h = win_size
         self.canvas.clear()
-        self.displayed_img = Rectangle(source=self.displayed_src, pos = (0, 0), size = (w/2, h))
+        self.size = (w/2, h/2)
+        self.pos = (w/4, h * Y_SCALAR)
+        self.displayed_img = Rectangle(source=self.displayed_src, pos = self.pos, size = self.size)
         self.canvas.add(self.displayed_img)
 
     def on_update(self):
