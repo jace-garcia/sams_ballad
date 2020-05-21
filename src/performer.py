@@ -20,7 +20,7 @@ import rtmidi
 # Highest piano key: 108
 
 # global params
-nowbar_w_pct = 0.33 # TODO: change so that it adjusts to split screen well
+nowbar_w_pct = 0.33 
 time_span = 10.0
 lane_w_pct = 0.0125
 square_h_pct = 0.01
@@ -129,8 +129,15 @@ def parse_piece_meta(path):
     return clefs, key
 
 def note_from_line(line):
-    time, note, clef = line.strip().split(',')
-    return (float(time), int(note), clef)
+    time, note, other = line.strip().split(',')
+    return (float(time), int(note), other)
+
+def bar_from_line(line):
+    time, barnum, cont, end = line.strip().split(',')
+    cont = cont == 'continue'
+    end = end == 'end'
+
+    return (float(time), int(barnum), cont, end)
 
 # Stores bar and note data
 class SongData(object):
@@ -145,7 +152,7 @@ class SongData(object):
 
         bars_file = song_base + '_bars.txt'
         lines = open(bars_file).readlines()
-        self.barlines = [note_from_line(l)[0] for l in lines]
+        self.barlines = [bar_from_line(l) for l in lines]
 
     def get_notes(self):
         return self.notes[:]
@@ -356,13 +363,19 @@ class NoteDisplay(InstructionGroup):
 
 # Displays a single barline on screen
 class BarlineDisplay(InstructionGroup):
-    def __init__(self, time):
+    def __init__(self, time, barnum, cont_tag=False, cont_cb=None, end_tag=False, end_cb=None):
         super(BarlineDisplay, self).__init__()
 
         self.time = time
+        self.barnum = barnum
 
         self.color = Color(1,1,1)
         self.line = Line()
+
+        self.cont_tag = cont_tag
+        self.cont_cb = cont_cb
+        self.end_tag = end_tag
+        self.end_cb = end_cb
 
         self.add(self.color)
         self.add(self.line)
@@ -375,6 +388,8 @@ class BarlineDisplay(InstructionGroup):
         y = lane_to_ypos(108 - 21 + 1) * barline_scalar
         y1 = y * bottom_barline_scalar
         y2 = y
+
+        # TODO: change story picture if barline is Story Point
 
         self.line.points = [x, y1, x, y2]
         self.line.width = .5
@@ -588,7 +603,6 @@ class MusicPartDisplay(InstructionGroup):
 
 
     def on_layout(self):
-        # TODO: update to account for KeyDisplay
         self.clear()
         if self.clef == 'treble':
             self.staff_lines, self.clef_x_pos = self.treble_setup()
@@ -628,7 +642,8 @@ class GameDisplay(InstructionGroup):
             hue += increment_by
             hues.append(hue)
 
-        self.barlines = [BarlineDisplay(b) for b in self.barlines]
+        # TODO: pass in arguments to Barline Display for Story Points, get call backs
+        self.barlines = [BarlineDisplay(b[0], b[1], b[2], None, b[3], None) for b in self.barlines]
         for b in self.barlines:
             self.add(b)
 
@@ -753,7 +768,7 @@ class Player(object):
         notes_in_window = self.song_data.get_note_indexes_in_range(self.last_time - slop_window, time - slop_window)
         self.last_time = time
 
-        # check for alive gems that just passed the slow window, setm mute alive note passes
+        # check for alive gems that just passed the slow window, set mute alive note passes
         for ni in notes_in_window:
             if self.notes_alive[ni]:
                 self.notes_alive[ni] = False
