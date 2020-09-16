@@ -5,7 +5,6 @@ sys.path.append('..')
 from common.core import *
 from common.audio import *
 from common.clock import *
-from common.synth import *
 from common.metro import *
 from common.gfxutil import *
 from common.mixer import *
@@ -58,7 +57,7 @@ class PerformerWidget(BaseWidget):
             m = MusicPartDisplay(clef=clef, key=self.key)
             self.part_displays[clef] = m
         
-        self.song_data = SongData(song_base_path)
+        self.song_data  = SongData(song_base_path)
         self.display    = GameDisplay(self.song_data, self.part_displays)
         self.audio_ctrl = AudioController(song_base_path)
         self.player     = Player(self.song_data, self.audio_ctrl, self.display, self.end_callback, self.continue_callback)

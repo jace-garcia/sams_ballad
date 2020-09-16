@@ -86,6 +86,3 @@ class StoryWidget(BaseWidget):
 
     def on_update(self):
         pass
-
-# if __name__ == "__main__":
-#     run(StoryWidget)

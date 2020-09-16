@@ -5,48 +5,29 @@
 import sys
 sys.path.append('..')
 from common.core import *
-from kivy.config import Config
-from kivy.uix.boxlayout import BoxLayout
-from performer import PerformerWidget
-from story import StoryWidget
-
+from game import GameWidget
+from menu import MenuWidget
 
 class MainWidget(BaseWidget):
     def __init__(self):
         super(MainWidget, self).__init__()
-        # self.layout = BoxLayout(orientation='vertical')
-        self.story_widget = StoryWidget()
-        self.performer_widget = PerformerWidget(self.end_story_cb, self.continue_story_cb)
-        # self.layout.add_widget(self.story_widget)
-        # self.layout.add_widget(self.performer_widget)
-        # self.add_widget(self.layout)
+        self.menu = MenuWidget()
+        self.add_widget(self.menu)
 
-        self.add_widget(self.story_widget)
-        self.add_widget(self.performer_widget)
+        self.load_game = False
 
-        self.continue_story = True
-        self.ended_story = False
+        # self.game = GameWidget()
+        # self.add_widget(self.game)
 
+    def on_layout(self, win_size):
+        self.menu.on_layout(win_size)
     
-    def continue_story_cb(self):
-        self.continue_story = True
-
-    def end_story_cb(self):
-        self.continue_story = False
-        self.ended_story = True
-
-    def on_key_down(self, keycode, modifiers):
-        pass
+    def on_touch_down(self, touch):
+        self.menu.on_touch_down(touch)
 
     def on_update(self):
-        if not self.continue_story:
-            self.story_widget.end_story()
-        
-        if self.continue_story and self.ended_story:
-            self.ended_story = False
-            self.story_widget.continue_story()
-
-
+        self.menu.on_update()
+        #self.game.on_update()
 
 if __name__ == "__main__":
     run(MainWidget)
