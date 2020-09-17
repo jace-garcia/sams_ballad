@@ -4,10 +4,15 @@ from common.core import *
 from common.gfxutil import *
 from kivy.properties import ListProperty
 
+def point_inbounds(point, boundaries):
+    return boundaries[0][0] <= point[0] <= boundaries[0][1] and boundaries[1][0] <= point[1] <= boundaries[1][1]
+
 class MenuWidget(BaseWidget):
-    def __init__(self):
+    def __init__(self, load_game_cb):
         super(MenuWidget, self).__init__()
-        self.display = MenuDisplay()
+        self.load_game_cb = load_game_cb
+
+        self.display = MenuDisplay(self.load_game_cb)
         self.canvas.add(self.display)
 
     def handle_start_click(self):
@@ -26,7 +31,7 @@ class MenuWidget(BaseWidget):
         self.display.on_update()
 
 class MenuDisplay(InstructionGroup):
-    def __init__(self, num_chapters=4):
+    def __init__(self, load_game_cb, num_chapters=4):
         super(MenuDisplay, self).__init__()
         w, h = (Window.width, Window.height)
         self.background_src = '../data/img/start_screen/background.png'
@@ -37,6 +42,8 @@ class MenuDisplay(InstructionGroup):
         self.load_chapter_select = False
         self.load_start = True
         self.start_clicked = False
+        self.chapters = []
+        self.load_game_cb = load_game_cb
         self.on_layout((w, h))
 
         self.ch_size = (w * 1/10, h/8)
@@ -49,9 +56,15 @@ class MenuDisplay(InstructionGroup):
         self.load_chapter_select = True
         self.start_clicked = True
 
+    def on_ch_click(self, ch_num):
+        self.load_game_cb()
+
     def on_touch_down(self, touch):
         if self.load_start:
             self.start.on_touch_down(touch)
+        if self.load_chapter_select:
+            for c in self.chapters:
+                c.on_touch_down(touch)
     
     def on_layout(self, win_size):
         self.clear()
@@ -90,8 +103,11 @@ class MenuDisplay(InstructionGroup):
                 
                 current_pos = (current_pos[0], pos[1])
             else: # adjacent
-                pos = (current_pos[0] + icon_width * (i%2), current_pos[1])
-            self.add(ChapterDisplay(chapter_num=i+1, pos=pos, ch_size=self.ch_size, num_size=self.num_size, btwn_size=self.btwn_size, active=True))
+                pos = (current_pos[0] + icon_width, current_pos[1])
+
+            chapter = ChapterDisplay(chapter_num=i+1, pos=pos, ch_size=self.ch_size, num_size=self.num_size, btwn_size=self.btwn_size, on_click=self.on_ch_click, active=True)
+            self.chapters.append(chapter)
+            self.add(chapter)
 
 
     def on_update(self):
@@ -111,12 +127,13 @@ class ChapterDisplay(InstructionGroup):
         self.ch_size = ch_size
         self.num_size = num_size
         self.btwn_size = btwn_size
-
+        self.on_click = on_click
         self.on_layout((Window.width, Window.height))
 
-    def on_ch_click(self):
+    def on_touch_down(self, touch):
         # TODO: trigger relevant chapter gameplay load
-        pass
+        if point_inbounds(touch.pos, self.boundaries):
+            self.on_click(self.chapter_num)
 
     def on_layout(self, win_size):
         # TODO: different color for inactive/unavailable chapters
@@ -141,11 +158,8 @@ class StartButton(InstructionGroup):
         self.on_click = on_click
 
     def on_touch_down(self, touch):
-        if (self.touch_inbounds(touch.pos)):
+        if point_inbounds(touch.pos, self.boundaries):
             self.on_click()
-
-    def touch_inbounds(self, pos):
-        return self.boundaries[0][0] <= pos[0] <= self.boundaries[0][1] and self.boundaries[1][0] <= pos[1] <= self.boundaries[1][1]
 
     def on_layout(self, win_size):
         self.clear()
