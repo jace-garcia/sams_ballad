@@ -39,10 +39,10 @@ class MenuDisplay(InstructionGroup):
         self.start_clicked = False
         self.on_layout((w, h))
 
-        self.ch_size = (w * 1/10, h/6)
-        self.num_size = (w * 1/15, h/6)
-        self.btwn_size = w * 1/10
-        self.init_pos = (w * 1/2, h/4)
+        self.ch_size = (w * 1/10, h/8)
+        self.num_size = (w * 1/20, h/10)
+        self.btwn_size = w * 1/8
+        self.init_pos = (w * 1/2, h/3)
 
     def on_start_click(self):
         self.load_start = False
@@ -79,11 +79,15 @@ class MenuDisplay(InstructionGroup):
         
         icon_width = ch_size[0] + num_size[0] + self.btwn_size
         icon_height = ch_size[1]
-
+        
+        y_offset = -h/20
         for i in range(self.num_ch):
             pos = ()
             if i % 2 == 0: # newline
                 pos = (current_pos[0], current_pos[1] - icon_height * (i/2))
+                if i != 0:
+                    pos = (pos[0], pos[1] + y_offset)
+                
                 current_pos = (current_pos[0], pos[1])
             else: # adjacent
                 pos = (current_pos[0] + icon_width * (i%2), current_pos[1])
@@ -97,7 +101,7 @@ class MenuDisplay(InstructionGroup):
         
 
 class ChapterDisplay(InstructionGroup):
-    def __init__(self, chapter_num, pos, ch_size, num_size, btwn_size, active=True):
+    def __init__(self, chapter_num, pos, ch_size, num_size, btwn_size, on_click=None, active=True):
         super(ChapterDisplay, self).__init__()
         self.ch_img = '../data/img/text/ch.png'
         self.num_img = '../data/img/text/' + str(chapter_num) + '.png'
@@ -110,7 +114,12 @@ class ChapterDisplay(InstructionGroup):
 
         self.on_layout((Window.width, Window.height))
 
+    def on_ch_click(self):
+        # TODO: trigger relevant chapter gameplay load
+        pass
+
     def on_layout(self, win_size):
+        # TODO: different color for inactive/unavailable chapters
         self.clear()
 
         w, h = win_size
@@ -121,7 +130,7 @@ class ChapterDisplay(InstructionGroup):
         num_size = self.num_size
         self.add(Rectangle(source=self.num_img, pos=num_pos, size=num_size))
         # [(x1, x2), (y1, y2)]
-        self.boundaries = [(ch_pos[0], ch_pos[0] + ch_size[0] + num_size[0] + w * 1/16), (ch_pos[1], ch_pos[1] + ch_size[1])]
+        self.boundaries = [(ch_pos[0], ch_pos[0] + ch_size[0] + num_size[0] + self.btwn_size), (ch_pos[1], ch_pos[1] + ch_size[1])]
 
 class StartButton(InstructionGroup):
     def __init__(self, on_click = None):
