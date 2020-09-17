@@ -26,7 +26,7 @@ class MenuWidget(BaseWidget):
         self.display.on_update()
 
 class MenuDisplay(InstructionGroup):
-    def __init__(self, num_chapters=5):
+    def __init__(self, num_chapters=4):
         super(MenuDisplay, self).__init__()
         w, h = (Window.width, Window.height)
         self.background_src = '../data/img/start_screen/background.png'
@@ -84,9 +84,9 @@ class MenuDisplay(InstructionGroup):
         for i in range(self.num_ch):
             pos = ()
             if i % 2 == 0: # newline
-                pos = (current_pos[0], current_pos[1] - icon_height * (i/2))
+                pos = (current_pos[0], current_pos[1])
                 if i != 0:
-                    pos = (pos[0], pos[1] + y_offset)
+                    pos = (pos[0], pos[1] + y_offset - icon_height)
                 
                 current_pos = (current_pos[0], pos[1])
             else: # adjacent
