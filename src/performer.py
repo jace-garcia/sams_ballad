@@ -11,6 +11,8 @@ from common.mixer import *
 from common.wavegen import *
 from common.wavesrc import WaveBuffer, WaveFile
 
+from pause_menu import PauseMenu
+
 from kivy.graphics import Translate
 
 import rtmidi
@@ -61,8 +63,11 @@ class PerformerWidget(BaseWidget):
         self.display    = GameDisplay(self.song_data, self.part_displays)
         self.audio_ctrl = AudioController(song_base_path)
         self.player     = Player(self.song_data, self.audio_ctrl, self.display, self.end_callback, self.continue_callback)
+        self.pause_menu = PauseMenu(status=True)
 
+        self.paused = True
         self.canvas.add(self.display)
+        self.canvas.add(self.pause_menu)
 
         # midi set up
         try:
@@ -75,6 +80,7 @@ class PerformerWidget(BaseWidget):
         # play / pause toggle
         if keycode[1] == 'p':
             self.audio_ctrl.toggle()
+            self.pause_menu.switch_status()
 
     def on_midi_in(self, message, data):
         # cmd = 144 means key down
@@ -93,6 +99,7 @@ class PerformerWidget(BaseWidget):
         w, h = win_size
 
         self.display.on_layout(win_size)
+        self.pause_menu.on_layout(win_size)
     
     def on_update(self):
         self.audio_ctrl.on_update()

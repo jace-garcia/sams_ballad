@@ -18,9 +18,6 @@ class MainWidget(BaseWidget):
         self.game = None
         # self.game = GameWidget()
         # self.add_widget(self.game)
-
-    def on_layout(self, win_size):
-        self.menu.on_layout(win_size)
     
     def on_touch_down(self, touch):
         self.menu.on_touch_down(touch)

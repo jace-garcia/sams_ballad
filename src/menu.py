@@ -86,12 +86,14 @@ class MenuDisplay(InstructionGroup):
 
     def load_chapters(self, win_size):
         w, h = win_size
-        ch_size = self.ch_size
-        num_size = self.num_size
+        self.ch_size = (w * 1/10, h/8)
+        self.num_size = (w * 1/20, h/10)
+        self.btwn_size = w * 1/8
+        self.init_pos = (w * 1/2, h/3)
         current_pos = self.init_pos
         
-        icon_width = ch_size[0] + num_size[0] + self.btwn_size
-        icon_height = ch_size[1]
+        icon_width = self.ch_size[0] + self.num_size[0] + self.btwn_size
+        icon_height = self.ch_size[1]
         
         y_offset = -h/20
         for i in range(self.num_ch):
