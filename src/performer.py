@@ -76,11 +76,16 @@ class PerformerWidget(BaseWidget):
         except:
             print('NO KEYBOARD ATTACHED')
 
+    def on_touch_down(self, touch):
+        if self.paused:
+            self.pause_menu.on_touch_down(touch)
+
     def on_key_down(self, keycode, modifiers):
         # play / pause toggle
         if keycode[1] == 'p':
             self.audio_ctrl.toggle()
             self.pause_menu.switch_status()
+            self.paused = not self.paused
 
     def on_midi_in(self, message, data):
         # cmd = 144 means key down
@@ -682,7 +687,8 @@ class GameDisplay(InstructionGroup):
 
     # called by Player on pass or miss.
     def note_pass(self, note_idx):
-        print('NOTE:', note_idx, 'MISSED')
+        pass
+        # print('NOTE:', note_idx, 'MISSED')
         # self.progress_circle_color.rgb = (1,0,0) # red
         # self.notes[note_idx].on_pass()
 
