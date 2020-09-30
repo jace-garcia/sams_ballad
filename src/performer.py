@@ -49,6 +49,7 @@ class PerformerWidget(BaseWidget):
         self.continue_callback = continue_callback
         self.exit_callback = exit_callback
         self.restart_callback = restart_callback
+        self.session = True
 
         song_base_path = '../data/pieces/chill_cycle/chill_cycle'
 
@@ -64,7 +65,7 @@ class PerformerWidget(BaseWidget):
         self.display    = GameDisplay(self.song_data, self.part_displays)
         self.audio_ctrl = AudioController(song_base_path)
         self.player     = Player(self.song_data, self.audio_ctrl, self.display, self.end_callback, self.continue_callback)
-        self.pause_menu = PauseMenu(status=True, restart_game_cb=self.restart_callback, cont_game_cb=self.switch_pause_stat, exit_game_cb=self.exit_callback)
+        self.pause_menu = PauseMenu(status=True, restart_game_cb=self.restart, cont_game_cb=self.switch_pause_stat, exit_game_cb=self.exit)
 
         self.paused = True
         self.canvas.add(self.display)
@@ -77,14 +78,27 @@ class PerformerWidget(BaseWidget):
         except:
             print('NO KEYBOARD ATTACHED')
 
-    def on_touch_down(self, touch):
-        if self.paused:
-            self.pause_menu.on_touch_down(touch)
+    def clear_session(self):
+        self.canvas.clear()
+        self.audio_ctrl.clear_audio()
+        self.session = False
+    
+    def restart(self):
+        self.clear_session()
+        self.restart_callback()
+    
+    def exit(self):
+        self.clear_session()
+        self.exit_callback()
     
     def switch_pause_stat(self):
         self.audio_ctrl.toggle()
         self.pause_menu.switch_status()
         self.paused = not self.paused
+    
+    def on_touch_down(self, touch):
+        if self.paused:
+            self.pause_menu.on_touch_down(touch)
 
     def on_key_down(self, keycode, modifiers):
         # play / pause toggle
@@ -111,11 +125,12 @@ class PerformerWidget(BaseWidget):
         self.pause_menu.on_layout(win_size)
     
     def on_update(self):
-        self.audio_ctrl.on_update()
+        if self.session:
+            self.audio_ctrl.on_update()
 
-        now = self.audio_ctrl.get_time()
-        self.player.on_update(now)
-        self.display.on_update(now)
+            now = self.audio_ctrl.get_time()
+            self.player.on_update(now)
+            self.display.on_update(now)
 
 def parse_piece_meta(path):
     load_clefs = False
@@ -215,6 +230,9 @@ class AudioController(object):
         g = 0 if mute else 1
         self.solo_track.set_gain(g)
         # self.bg_track.set_gain(g)
+
+    def clear_audio(self):
+        self.audio.close()
 
     # play a sound-fx (miss sound)
     def play_miss(self):
