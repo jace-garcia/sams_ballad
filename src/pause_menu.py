@@ -4,10 +4,13 @@ from common.gfxutil import *
 from menu import point_inbounds
 
 class PauseMenu(InstructionGroup):
-    def __init__(self,status=True):
+    def __init__(self, restart_game_cb, cont_game_cb, exit_game_cb, status=True):
         super(PauseMenu, self).__init__()
         w, h = Window.width, Window.height
         self.status = status
+        self.restart_game_cb = restart_game_cb
+        self.cont_game_cb = cont_game_cb
+        self.exit_game_cb = exit_game_cb
         self.cont_img = '../data/img/text/continue.png'
         self.exit_img = '../data/img/text/exit.png'
         self.restart_img = '../data/img/text/restart.png'
@@ -27,10 +30,13 @@ class PauseMenu(InstructionGroup):
         pos = touch.pos
         if point_inbounds(pos, self.cont_boundaries):
             print('continue clicked')
+            self.cont_game_cb()
         if point_inbounds(pos, self.exit_boundaries):
             print('exit clicked')
+            self.exit_game_cb()
         if point_inbounds(pos, self.restart_boundaries):
             print('restart clicked')
+            self.restart_game_cb()
 
     def switch_status(self):
         self.status = not self.status
@@ -39,12 +45,12 @@ class PauseMenu(InstructionGroup):
     def on_layout(self, win_size):
         self.clear()
         w, h = win_size
-        self.anchor_pos = (w/4, h * 2/3)
+        self.anchor_pos = (w/4, h * 3/4)
         self.y_offset = -h/8
         self.img_height = h/12
 
         if (self.status):
-            self.add(Color(255, 0, 0))
+            self.add(Color(1, 0, 0))
 
             cont_pos = (self.anchor_pos[0] + w/12, self.anchor_pos[1])
             cont_size = (w * 1/3, self.img_height)

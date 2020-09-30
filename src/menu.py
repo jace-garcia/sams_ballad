@@ -87,7 +87,7 @@ class MenuDisplay(InstructionGroup):
     def load_chapters(self, win_size):
         w, h = win_size
         self.ch_size = (w * 1/10, h/8)
-        self.num_size = (w * 1/20, h/10)
+        self.num_size = (w * 1/20, h/8)
         self.btwn_size = w * 1/8
         self.init_pos = (w * 1/2, h/3)
         current_pos = self.init_pos
@@ -167,8 +167,8 @@ class StartButton(InstructionGroup):
         self.clear()
 
         w, h = win_size
-        pos = (w * (1/2), h / 4)
-        size = (w * (1/5), h / 8)
+        pos = (w * (.58), h / 4)
+        size = (w * (3/10), h / 8)
 
         self.boundaries = [(pos[0], pos[0] + size[0]), (pos[1], pos[1] + size[1])]
         self.add(Rectangle(source=self.img_src, pos=pos, size=size))

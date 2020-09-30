@@ -1,20 +1,27 @@
 import sys
 sys.path.append('..')
 from common.core import *
+from common.gfxutil import *
 from performer import PerformerWidget
 from story import StoryWidget
 
 class GameWidget(BaseWidget):
-    def __init__(self):
+    def __init__(self, restart_cb, exit_cb):
         super(GameWidget, self).__init__()
+        self.restart_cb = restart_cb
+        self.exit_cb = exit_cb
         self.story_widget = StoryWidget()
-        self.performer_widget = PerformerWidget(self.end_story_cb, self.continue_story_cb)
+        self.performer_widget = PerformerWidget(self.end_story_cb, self.continue_story_cb, self.exit_cb, self.restart_cb)
 
         self.add_widget(self.story_widget)
         self.add_widget(self.performer_widget)
 
         self.continue_story = True
         self.ended_story = False
+
+    def on_layout(self, win_size):
+        self.story_widget.on_layout(win_size)
+        self.performer_widget.on_layout(win_size)
     
     def continue_story_cb(self):
         self.continue_story = True

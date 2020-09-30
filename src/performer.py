@@ -43,11 +43,12 @@ barline_scalar = 4 / 12
 bottom_barline_scalar = .1
 
 class PerformerWidget(BaseWidget):
-    def __init__(self, end_callback, continue_callback):
+    def __init__(self, end_callback, continue_callback, exit_callback, restart_callback):
         super(PerformerWidget, self).__init__()
-
         self.end_callback = end_callback # true end should also end music play and probably do other stuff like display 'You Lost'
         self.continue_callback = continue_callback
+        self.exit_callback = exit_callback
+        self.restart_callback = restart_callback
 
         song_base_path = '../data/pieces/chill_cycle/chill_cycle'
 
@@ -63,7 +64,7 @@ class PerformerWidget(BaseWidget):
         self.display    = GameDisplay(self.song_data, self.part_displays)
         self.audio_ctrl = AudioController(song_base_path)
         self.player     = Player(self.song_data, self.audio_ctrl, self.display, self.end_callback, self.continue_callback)
-        self.pause_menu = PauseMenu(status=True)
+        self.pause_menu = PauseMenu(status=True, restart_game_cb=self.restart_callback, cont_game_cb=self.switch_pause_stat, exit_game_cb=self.exit_callback)
 
         self.paused = True
         self.canvas.add(self.display)
@@ -79,13 +80,16 @@ class PerformerWidget(BaseWidget):
     def on_touch_down(self, touch):
         if self.paused:
             self.pause_menu.on_touch_down(touch)
+    
+    def switch_pause_stat(self):
+        self.audio_ctrl.toggle()
+        self.pause_menu.switch_status()
+        self.paused = not self.paused
 
     def on_key_down(self, keycode, modifiers):
         # play / pause toggle
         if keycode[1] == 'p':
-            self.audio_ctrl.toggle()
-            self.pause_menu.switch_status()
-            self.paused = not self.paused
+            self.switch_pause_stat()
 
     def on_midi_in(self, message, data):
         # cmd = 144 means key down
@@ -636,7 +640,6 @@ class GameDisplay(InstructionGroup):
         #      Part's staff line data needs to be accessible
         #      Maybe hardcode staff line midi keys
         #      Option to change MusicPartDisplay's Key, for different keys in same piece
-
         self.gem_data = song_data.get_notes()
         self.barlines = song_data.get_barlines()
         self.part_displays = music_part_displays
