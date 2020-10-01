@@ -26,7 +26,6 @@ class MainWidget(BaseWidget):
         self.add_widget(self.game)
 
     def exit_game_cb(self):
-        # TODO: Fix audio toggle bug, music still plays after you exit
         self.remove_widget(self.game)
         self.game = None
         self.load_game = False

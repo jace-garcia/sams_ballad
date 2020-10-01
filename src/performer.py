@@ -65,7 +65,7 @@ class PerformerWidget(BaseWidget):
         self.display    = GameDisplay(self.song_data, self.part_displays)
         self.audio_ctrl = AudioController(song_base_path)
         self.player     = Player(self.song_data, self.audio_ctrl, self.display, self.end_callback, self.continue_callback)
-        self.pause_menu = PauseMenu(status=True, restart_game_cb=self.restart, cont_game_cb=self.switch_pause_stat, exit_game_cb=self.exit)
+        self.pause_menu = PauseMenu(status=True, restart_game_cb=self.restart, cont_game_cb=self.switch_pause_state, exit_game_cb=self.exit)
 
         self.paused = True
         self.canvas.add(self.display)
@@ -91,7 +91,7 @@ class PerformerWidget(BaseWidget):
         self.clear_session()
         self.exit_callback()
     
-    def switch_pause_stat(self):
+    def switch_pause_state(self):
         self.audio_ctrl.toggle()
         self.pause_menu.switch_status()
         self.paused = not self.paused
@@ -103,7 +103,7 @@ class PerformerWidget(BaseWidget):
     def on_key_down(self, keycode, modifiers):
         # play / pause toggle
         if keycode[1] == 'p':
-            self.switch_pause_stat()
+            self.switch_pause_state()
 
     def on_midi_in(self, message, data):
         # cmd = 144 means key down

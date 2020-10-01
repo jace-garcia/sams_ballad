@@ -4,6 +4,7 @@ from common.core import *
 from common.gfxutil import *
 from performer import PerformerWidget
 from story import StoryWidget
+from death_screen import DeathScreen, DeathText
 
 class GameWidget(BaseWidget):
     def __init__(self, restart_cb, exit_cb):
@@ -19,9 +20,13 @@ class GameWidget(BaseWidget):
         self.continue_story = True
         self.ended_story = False
 
+        self.death_screen = DeathScreen()
+        #self.canvas.add(self.death_screen)
+
     def on_layout(self, win_size):
         self.story_widget.on_layout(win_size)
         self.performer_widget.on_layout(win_size)
+        self.death_screen.on_layout(win_size)
     
     def continue_story_cb(self):
         self.continue_story = True
