@@ -7,7 +7,7 @@ class PauseMenu(InstructionGroup):
     def __init__(self, restart_game_cb, cont_game_cb, exit_game_cb, status=True):
         super(PauseMenu, self).__init__()
         w, h = Window.width, Window.height
-        self.status = status
+        self.status = status # paused or unpaused
         self.restart_game_cb = restart_game_cb
         self.cont_game_cb = cont_game_cb
         self.exit_game_cb = exit_game_cb
@@ -15,7 +15,6 @@ class PauseMenu(InstructionGroup):
         self.exit_img = '../data/img/text/exit.png'
         self.restart_img = '../data/img/text/restart.png'
 
-        # TODO: fill in and implement on_touch_down
         self.cont_boundaries = []
         self.exit_boundaries = []
         self.restart_boundaries = []

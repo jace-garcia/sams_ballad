@@ -20,13 +20,9 @@ class GameWidget(BaseWidget):
         self.continue_story = True
         self.ended_story = False
 
-        self.death_screen = DeathScreen()
-        #self.canvas.add(self.death_screen)
-
     def on_layout(self, win_size):
         self.story_widget.on_layout(win_size)
         self.performer_widget.on_layout(win_size)
-        self.death_screen.on_layout(win_size)
     
     def continue_story_cb(self):
         self.continue_story = True

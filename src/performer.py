@@ -12,6 +12,7 @@ from common.wavegen import *
 from common.wavesrc import WaveBuffer, WaveFile
 
 from pause_menu import PauseMenu
+from death_screen import DeathScreen
 
 from kivy.graphics import Translate
 
@@ -64,12 +65,14 @@ class PerformerWidget(BaseWidget):
         self.song_data  = SongData(song_base_path)
         self.display    = GameDisplay(self.song_data, self.part_displays)
         self.audio_ctrl = AudioController(song_base_path)
-        self.player     = Player(self.song_data, self.audio_ctrl, self.display, self.end_callback, self.continue_callback)
+        self.player     = Player(self.song_data, self.audio_ctrl, self.display, self.end_game, self.continue_callback)
         self.pause_menu = PauseMenu(status=True, restart_game_cb=self.restart, cont_game_cb=self.switch_pause_state, exit_game_cb=self.exit)
+        self.death_screen = DeathScreen(status=False, exit_cb=self.exit, restart_cb=self.restart)
 
         self.paused = True
         self.canvas.add(self.display)
         self.canvas.add(self.pause_menu)
+        self.canvas.add(self.death_screen)
 
         # midi set up
         try:
@@ -77,6 +80,10 @@ class PerformerWidget(BaseWidget):
             self.midi_out = open_midi_out("Digital Piano")
         except:
             print('NO KEYBOARD ATTACHED')
+
+    def end_game(self):
+        self.end_callback()
+        self.death_screen.set_status(True)
 
     def clear_session(self):
         self.canvas.clear()
@@ -99,6 +106,9 @@ class PerformerWidget(BaseWidget):
     def on_touch_down(self, touch):
         if self.paused:
             self.pause_menu.on_touch_down(touch)
+
+        if self.death_screen.status:
+            self.death_screen.on_touch_down(touch)
 
     def on_key_down(self, keycode, modifiers):
         # play / pause toggle
@@ -123,6 +133,7 @@ class PerformerWidget(BaseWidget):
 
         self.display.on_layout(win_size)
         self.pause_menu.on_layout(win_size)
+        self.death_screen.on_layout(win_size)
     
     def on_update(self):
         if self.session:
@@ -747,11 +758,11 @@ class GameDisplay(InstructionGroup):
 # Handles game logic
 # Controls GameDisplay and AudioCtrl based on what happens
 class Player(object):
-    def __init__(self, song_data, audio_ctrl, display, end_callback, continue_callback):
+    def __init__(self, song_data, audio_ctrl, display, end_story_callback, continue_callback):
         super(Player, self).__init__()
 
         self.continue_callback = continue_callback
-        self.end_callback = end_callback
+        self.end_story_callback = end_story_callback
         self.song_data = song_data
         self.audio_ctrl = audio_ctrl
         self.display = display
@@ -784,7 +795,8 @@ class Player(object):
         # if a hit did not happen, the remaining gems in the window are considered misses:
         if not did_hit:
             self.audio_ctrl.play_miss()
-            self.end_callback()
+            # call back for changing story image
+            self.end_story_callback()
             for ni in notes_in_window:
                 if self.notes_alive[ni]:
                     self.notes_alive[ni] = False
@@ -807,7 +819,7 @@ class Player(object):
                 self.notes_alive[ni] = False
                 self.display.note_pass(ni)
                 self.audio_ctrl.set_mute(True)
-                self.end_callback()
+                self.end_story_callback()
 
 
 # helper for opening a midi port by name
